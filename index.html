@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blessed Kunjachan Ward Feast Quiz & Certificate</title>
+  <!-- Canvas Confetti for celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --primary: #92400e;
+      --primary-light: #fef3c7;
+      --accent: #d97706;
+      --bg: #fffbeb;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 32px 24px;
+      border-top: 8px solid var(--accent);
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    h1, h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    button.btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(217, 119, 6, 0.3);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button.btn:hover {
+      background: #b45309;
+    }
+
+    button.btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Quiz layout */
+    .progress-bar-container {
+      background: #f3f4f6;
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .q-number {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .q-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #111827;
+      line-height: 1.4;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .option-btn {
+      text-align: left;
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: var(--accent);
+      background: var(--primary-light);
+    }
+
+    .option-btn.selected {
+      border-color: var(--accent);
+      background: #fde68a;
+      font-weight: bold;
+    }
+
+    /* Certificate View */
+    .cert-outer {
+      background: #fffdf5;
+      border: 10px double var(--primary);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+      margin: 15px 0 20px 0;
+    }
+
+    .cert-header {
+      font-family: 'Georgia', serif;
+      font-size: 1.6rem;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+    }
+
+    .cert-sub {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    .cert-recipient {
+      font-family: 'Georgia', serif;
+      font-size: 1.8rem;
+      color: #111827;
+      border-bottom: 2px solid #d1d5db;
+      display: inline-block;
+      padding: 0 25px 5px 25px;
+      margin: 10px 0 14px 0;
+      font-weight: bold;
+    }
+
+    .cert-body {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #4b5563;
+      margin-bottom: 15px;
+    }
+
+    .cert-meta {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 15px;
+    }
+
+    .cert-meta-item {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .cert-meta-val {
+      font-weight: bold;
+      color: #1f2937;
+      margin-top: 2px;
+    }
+
+    .btn-secondary {
+      background: #4b5563;
+      margin-top: 10px;
+    }
+    .btn-secondary:hover {
+      background: #374151;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #certificate-card, #certificate-card * {
+        visibility: visible;
+      }
+      #certificate-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: 10px double #92400e;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- SCREEN 1: REGISTRATION -->
+    <div id="screen-start" class="screen active">
+      <h1>Blessed Kunjachan Quiz</h1>
+      <p class="subtitle">Ward Feast Day Celebration & Discipleship Challenge</p>
+
+      <div class="input-group">
+        <label for="child-name">Child's Name:</label>
+        <input type="text" id="child-name" placeholder="Enter your full name" required />
+      </div>
+
+      <div class="input-group">
+        <label for="ward-name">Ward / Parish Name:</label>
+        <input type="text" id="ward-name" placeholder="e.g. St. Thomas Ward / Holy Family" required />
+      </div>
+
+      <button class="btn" onclick="startQuiz()">Begin Quiz & Earn Certificate</button>
+    </div>
+
+    <!-- SCREEN 2: QUIZ -->
+    <div id="screen-quiz" class="screen">
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="q-number" id="q-indicator">Question 1 of 8</div>
+      <div class="q-title" id="q-text"></div>
+      <div class="options-grid" id="options-container"></div>
+      <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Select an Answer</button>
+    </div>
+
+    <!-- SCREEN 3: RESULTS & CERTIFICATE -->
+    <div id="screen-cert" class="screen">
+      <div id="certificate-card" class="cert-outer">
+        <div class="cert-header">Certificate of Discipleship</div>
+        <div class="cert-sub">Ward Feast Day Honor</div>
+
+        <p style="font-size: 0.95rem; color: #6b7280; margin-top: 10px;">This certifies that</p>
+        <div class="cert-recipient" id="cert-child-name">Candidate Name</div>
+        
+        <p class="cert-body">
+          Has successfully completed the <strong>Blessed Kunjachan Feast Day Quiz</strong>, demonstrating knowledge of the humble life, deep prayer, and devoted service of the "Apostle of the Downtrodden."
+        </p>
+
+        <div class="cert-meta">
+          <div class="cert-meta-item">
+            <div>Ward / Parish</div>
+            <div class="cert-meta-val" id="cert-ward-val">Ward Name</div>
+          </div>
+          <div class="cert-meta-item">
+            <div>Score Achieved</div>
+            <div class="cert-meta-val" id="cert-score-val">100%</div>
+          </div>
+          <div class="cert-meta-item">
+            <div>Date</div>
+            <div class="cert-meta-val" id="cert-date-val">Today</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn no-print" onclick="window.print()">🖨️ Download / Print Certificate</button>
+      <button class="btn btn-secondary no-print" onclick="resetQuiz()">Take Quiz Again</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What was Blessed Kunjachan's original baptismal name?",
+        options: ["Augustine Thevarparampil", "Francis Xavier", "Thomas Alva", "Joseph Vaz"],
+        answer: 0
+      },
+      {
+        question: "Why was he affectionately named 'Kunjachan'?",
+        options: [
+          "He was a fast runner",
+          "He was short in physical stature ('Little Priest')",
+          "He came from a big royal family",
+          "He wrote famous poetry"
+        ],
+        answer: 1
+      },
+      {
+        question: "In which village in Kerala did Blessed Kunjachan live, serve, and get buried?",
+        options: ["Ramapuram", "Kochi", "Wayanad", "Munnar"],
+        answer: 0
+      },
+      {
+        question: "Which special group of people did Kunjachan dedicate his entire life to serving?",
+        options: [
+          "The Dalits (marginalized & downtrodden poor)",
+          "Wealthy merchant sailors",
+          "Palace guards",
+          "Foreign visitors"
+        ],
+        answer: 0
+      },
+      {
+        question: "How did Kunjachan travel through the villages to visit families in need?",
+        options: ["By horse cart", "On foot across rough paths", "By luxury train", "By motorcycle"],
+        answer: 1
+      },
+      {
+        question: "Why did local farmers often invite Kunjachan to their fields?",
+        options: [
+          "To harvest their grain",
+          "To bless the crops and protect them from destructive pests and insects",
+          "To buy seeds from him",
+          "To build irrigation dams"
+        ],
+        answer: 1
+      },
+      {
+        question: "How did Kunjachan help poor children learn to read and write?",
+        options: [
+          "He built informal shed schools called 'Kalaris'",
+          "He bought them all smartphones",
+          "He sent them away abroad",
+          "He taught only via church bulletins"
+        ],
+        answer: 0
+      },
+      {
+        question: "What does Blessed Kunjachan's humble life teach us today?",
+        options: [
+          "Only famous people can do good",
+          "Small acts of faithful love, prayer, and charity can transform lives",
+          "Wealth is the most important thing in life",
+          "To avoid helping those in need"
+        ],
+        answer: 1
+      }
+    ];
+
+    let currentIdx = 0;
+    let selectedOption = null;
+    let score = 0;
+    let childName = "";
+    let wardName = "";
+
+    function startQuiz() {
+      const nameInput = document.getElementById("child-name").value.trim();
+      const wardInput = document.getElementById("ward-name").value.trim();
+
+      if (!nameInput) {
+        alert("Please enter your name to receive your certificate!");
+        return;
+      }
+
+      childName = nameInput;
+      wardName = wardInput || "Parish Ward Celebration";
+
+      document.getElementById("screen-start").classList.remove("active");
+      document.getElementById("screen-quiz").classList.add("active");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = questions[currentIdx];
+      selectedOption = null;
+
+      document.getElementById("q-indicator").innerText = `Question ${currentIdx + 1} of ${questions.length}`;
+      document.getElementById("q-text").innerText = q.question;
+      
+      const pct = (currentIdx / questions.length) * 100;
+      document.getElementById("progress-bar").style.width = pct + "%";
+
+      const container = document.getElementById("options-container");
+      container.innerHTML = "";
+
+      q.options.forEach((optText, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = optText;
+        btn.onclick = () => selectOption(index, btn);
+        container.appendChild(btn);
+      });
+
+      const nextBtn = document.getElementById("next-btn");
+      nextBtn.disabled = true;
+      nextBtn.innerText = "Select an Answer";
+    }
+
+    function selectOption(index, btnElem) {
+      selectedOption = index;
+      const allBtns = document.querySelectorAll(".option-btn");
+      allBtns.forEach(b => b.classList.remove("selected"));
+      btnElem.classList.add("selected");
+
+      const nextBtn = document.getElementById("next-btn");
+      nextBtn.disabled = false;
+      nextBtn.innerText = currentIdx === questions.length - 1 ? "Finish & View Certificate 🎉" : "Next Question →";
+    }
+
+    function nextQuestion() {
+      if (selectedOption === questions[currentIdx].answer) {
+        score++;
+      }
+
+      currentIdx++;
+      if (currentIdx < questions.length) {
+        loadQuestion();
+      } else {
+        showCertificate();
+      }
+    }
+
+    function showCertificate() {
+      document.getElementById("screen-quiz").classList.remove("active");
+      document.getElementById("screen-cert").classList.add("active");
+
+      document.getElementById("cert-child-name").innerText = childName;
+      document.getElementById("cert-ward-val").innerText = wardName;
+
+      const finalPercentage = Math.round((score / questions.length) * 100);
+      document.getElementById("cert-score-val").innerText = `${finalPercentage}% (${score}/${questions.length})`;
+
+      const now = new Date();
+      document.getElementById("cert-date-val").innerText = now.toLocaleDateString();
+
+      // Launch celebratory confetti
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    function resetQuiz() {
+      currentIdx = 0;
+      score = 0;
+      selectedOption = null;
+      document.getElementById("screen-cert").classList.remove("active");
+      document.getElementById("screen-start").classList.add("active");
+      document.getElementById("child-name").value = "";
+    }
+  </script>
+</body>
+</html>
